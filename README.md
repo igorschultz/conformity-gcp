@@ -163,8 +163,8 @@ gcloud projects list --filter=<walkthrough-project-id/>
 
 ```sh
 gcloud projects add-iam-policy-binding <walkthrough-project-id/> \
-    --member=serviceAccount:cloud-one-conformity-bot@<walkthrough-project-id/>.iam.gserviceaccount.com.
-    --role=CloudOneConformityAccess
+    --member=serviceAccount:cloud-one-conformity-bot@<walkthrough-project-id/>.iam.gserviceaccount.com
+    --role=projects/<walkthrough-project-id/>/roles/CloudOneConformityAccess
 ```
 
 --------------------------------
@@ -191,3 +191,14 @@ To complete the deployment process, once the key has been created, follow the st
 6. Review the summary information and click Finish.
 
 --------------------------------
+
+## Cleanup Environment
+
+# List Cloud One Conformity Service Accounts
+gcloud iam service-accounts list --filter=cloud-one-conformity-bot
+
+# Delete Cloud One Conformity Service Accounts
+gcloud iam service-accounts delete cloud-one-conformity-bot@<walkthrough-project-id/>.iam.gserviceaccount.com
+
+# Deletar Role
+gcloud iam roles delete CloudOneConformityAccess --project=<walkthrough-project-id/>
