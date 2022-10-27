@@ -4,7 +4,7 @@
 
 ## Overview
 
-<walkthrough-tutorial-duration duration="5"></walkthrough-tutorial-duration>
+<walkthrough-tutorial-duration duration="10"></walkthrough-tutorial-duration>
 
 This tutorial will guide you to add new GCP Projects to an existing Cloud One Conformity Service Account.
 
@@ -35,6 +35,7 @@ You need the identify the Cloud Conformity Bot Service Account following permiss
 
 ```sh
 gcloud projects add-iam-policy-binding <walkthrough-project-id/> \
-    --member=serviceAccount:<SA_NAME>@<PROJECT_ID>.iam.gserviceaccount.com.
-    --role=<ROLE_ID>
+    --member=serviceAccount:cloud-one-conformity-bot@<PROJECT_ID>.iam.gserviceaccount.com.
+    --role=CloudOneConformityAccess
 ```
+--------------------------------

@@ -13,13 +13,13 @@
 
 ### LocalMachine
 
-# Cloud One File Storage Security
+# Cloud One Conformity
 
-# Deploy scanner and storage stacks
+# Configure GCP Credentials to Conformity Bot Access
 
 ## Overview
 
-<walkthrough-tutorial-duration duration="10"></walkthrough-tutorial-duration>
+<walkthrough-tutorial-duration duration="20"></walkthrough-tutorial-duration>
 
 This tutorial will guide you to identify misconfigurations and address compliance to an existing GCP project by deploying Cloud One Conformity.
 
@@ -29,12 +29,12 @@ This tutorial will guide you to identify misconfigurations and address complianc
 
 The permissions that Conformity management roles will have after it has been deployed and configured are defined in:
 
-* <walkthrough-editor-open-file filePath="management_roles.py">Management roles</walkthrough-editor-open-file>
+* <walkthrough-editor-open-file filePath="cc-roles.yaml">Conformity roles</walkthrough-editor-open-file>
 
 ## Project setup
 
 1. Select the project from the drop-down list.
-1. Copy and execute the script below in the Cloud Shell to complete the project setup.
+2. Copy and execute the script below in the Cloud Shell to complete the project setup.
 
 <walkthrough-project-setup></walkthrough-project-setup>
 
@@ -64,10 +64,11 @@ You need the following permissions before deployment:
 * Cloud Pub/Sub API
 * Cloud Resource Manager API
 
+
 List the APIs that are enabled:
 
 ```sh
-gcloud service list --enabled
+gcloud services list --enabled
 ```
 
 Enable all the needed APIs at once:
@@ -127,7 +128,7 @@ Naming rules:
 Option A: To create a custom role at the project level, execute the following command:
 
 ```sh
-gcloud iam roles create <ROLE_ID> --project=<walkthrough-project-id/> --file=../cc-roles.yaml
+gcloud iam roles create CloudOneConformityAccess --project=<walkthrough-project-id/> --file=./cc-roles.yaml
 ```
 
 OR
@@ -135,7 +136,7 @@ OR
 Option B: To create a custom role at the organization level, execute the following command:
 
 ```sh
-gcloud iam roles create <ROLE_ID> --organization=<ORGANIZATION_ID> --file=../cc-roles.yaml
+gcloud iam roles create CloudOneConformityAccess --organization=<ORGANIZATION_ID> --file=../cc-roles.yaml
 ```
 
 --------------------------------
@@ -145,12 +146,12 @@ gcloud iam roles create <ROLE_ID> --organization=<ORGANIZATION_ID> --file=../cc-
 Create a custom Service Account used by Conformity Bot to get access to GCP projects and resources.
 
 ```sh
-gcloud iam service-accounts create <SA_NAME> --description="GCP service account for connecting Cloud One Conformity Bot to GCP" --display-name="Cloud One Conformity Bot"
+gcloud iam service-accounts create cloud-one-conformity-bot --description="GCP service account for connecting Cloud One Conformity Bot to GCP" --display-name="Cloud One Conformity Bot"
 ```
 
 ### Step 4: Bind the custom role to the service account:
 
-Bind the custom role to <SA_NAME>@<PROJECT_ID>.iam.gserviceaccount.com.
+Bind the custom role to Cloud One Conformity Service Account.
 
 1. Get project number:
 
@@ -162,8 +163,8 @@ gcloud projects list --filter=<walkthrough-project-id/>
 
 ```sh
 gcloud projects add-iam-policy-binding <walkthrough-project-id/> \
-    --member=serviceAccount:<SA_NAME>@<PROJECT_ID>.iam.gserviceaccount.com.
-    --role=<ROLE_ID>
+    --member=serviceAccount:cloud-one-conformity-bot@<walkthrough-project-id/>.iam.gserviceaccount.com.
+    --role=CloudOneConformityAccess
 ```
 
 --------------------------------
@@ -175,7 +176,7 @@ For more information, see [Permissions for deployment](https://cloudone.trendmic
 Generate a JSON file which will grant permissions for Conformity to assume the Service Account we just created:
 
 ```sh
-gcloud iam service-accounts keys create Conformitykey.json --iam-account=<SA_NAME>@<PROJECT_ID>.iam.gserviceaccount.com
+gcloud iam service-accounts keys create Conformitykey.json --iam-account=cloud-one-conformity-bot@<walkthrough-project-id/>.iam.gserviceaccount.com
 ```
 
 ## Configure JSON in Conformity console
