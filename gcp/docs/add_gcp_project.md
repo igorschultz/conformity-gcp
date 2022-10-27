@@ -29,13 +29,14 @@ gcloud config set project <walkthrough-project-id/>
 
 --------------------------------
 
-## Enable permissions for deployment
+## Set Cloud One Conformity Custom Role to Service Account
 
-You need the identify the Cloud Conformity Bot Service Account following permissions before deployment:
+You need to identify the Cloud Conformity Bot Service Account ID that has been created earlier and set as member for this project and with the appopriate policy.
 
 ```sh
-gcloud projects add-iam-policy-binding <walkthrough-project-id/> \
-    --member=serviceAccount:cloud-one-conformity-bot@<PROJECT_ID>.iam.gserviceaccount.com.
-    --role=CloudOneConformityAccess
+gcloud iam service-accounts add-iam-policy-binding <walkthrough-project-id/> \
+    --member=serviceAccount:cloud-one-conformity-bot@<PROJECT_ID>.iam.gserviceaccount.com
+    --role=projects/<walkthrough-project-id/>/roles/CloudOneConformityAccess
 ```
+
 --------------------------------
