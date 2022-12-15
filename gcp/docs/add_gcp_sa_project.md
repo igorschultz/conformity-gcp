@@ -158,7 +158,7 @@ For more information, see [Permissions for deployment](https://cloudone.trendmic
 
 ## Step 5: Generate a Service Account JSON key
 
-Generate a JSON file which will grant permissions for Conformity to assume the Service Account we just created:
+# Generate a JSON file which will grant permissions for Conformity to assume the Service Account we just created:
 
 ```sh
 gcloud iam service-accounts keys create Conformitykey.json --iam-account=cloud-one-conformity-bot@<walkthrough-project-id/>.iam.gserviceaccount.com
