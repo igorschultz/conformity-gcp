@@ -14,33 +14,35 @@ GCP_PROJECT_ID=$(gcloud config list --format 'value(core.project)' 2> /dev/null)
 ORG_ID=$(gcloud organizations list --format 'value(ID)')
 PROJECT_LIST_ID=$(gcloud projects list --format="value(PROJECT_ID)")
 
+echo "Enabling Google Cloud APIs for projects..."
 for project in $PROJECT_LIST_ID
 do
 # Enable Google APIs
-echo "Enabling Google Cloud APIs for projects..."
 gcloud services enable dns.googleapis.com bigquery.googleapis.com bigquerymigration.googleapis.com bigquerystorage.googleapis.com cloudapis.googleapis.com cloudresourcemanager.googleapis.com iam.googleapis.com accessapproval.googleapis.com cloudkms.googleapis.com compute.googleapis.com storage.googleapis.com sqladmin.googleapis.com dataproc.googleapis.com container.googleapis.com logging.googleapis.com pubsub.googleapis.com cloudresourcemanager.googleapis.com
-echo "Conformity required APIs are enabled"
+echo "Conformity APIs enabled for $project"
 done
 
 # Create a custom role containing the permissions below:
 echo "Deploying Cloud One Conformity Role..."
-CONFORMITY_ROLE=$(gcloud iam roles create CloudOneConformityAccess --organization=$ORG_ID --file=../cc-roles.yaml)
+gcloud iam roles create CloudOneConformityAccess --organization=$ORG_ID --file=cc-roles.yaml
+CONFORMITY_ROLE=$(gcloud iam roles list --filter=CloudOneConformityAccess --organization=$ORG_ID --format="value(NAME)")
 echo "Conformity custom role created"
 echo $CONFORMITY_ROLE
 
 # Create Cloud One Conformity Service Account
 echo "Deploying Cloud One Conformity Service Account..."
-CONFORMITY_SA_EMAIL=$(gcloud iam service-accounts create cloud-one-conformity-bot --description="GCP service account for connecting Cloud One Conformity Bot to GCP" --display-name="Cloud One Conformity Bot")
+gcloud iam service-accounts create cloud-one-conformity-bot --description="GCP service account for connecting Cloud One Conformity Bot to GCP" --display-name="Cloud One Conformity Bot"
+CONFORMITY_SA_EMAIL=$(gcloud iam service-accounts list --filter=cloud-one-conformity-bot --format="value(EMAIL)")
 echo "Conformity Service Account created"
 echo $CONFORMITY_SA_EMAIL
 
-# Create Cloud One Conformity Service Account
-echo "Binding Conformity role to Service Account..."
-gcloud projects add-iam-policy-binding $GCP_PROJECT_ID --member=serviceAccount:$CONFORMITY_SA_EMAIL --role=$CONFORMITY_ROLE
+# Binding role to Service Account
+#echo "Binding Conformity role to Service Account..."
+#gcloud projects add-iam-policy-binding $GCP_PROJECT_ID --member=serviceAccount:$CONFORMITY_SA_EMAIL --role=$CONFORMITY_ROLE
 
 # Generate a Service Account JSON key
 echo "Generating JSON file..."
-gcloud iam service-accounts keys create Conformitykey.json --iam-account=cloud-one-conformity-bot@$GCP_PROJECT_ID.iam.gserviceaccount.com
+gcloud iam service-accounts keys create Conformitykey.json --iam-account=$CONFORMITY_SA_EMAIL
 
 echo "------------------------"
 echo "Adding GCP Project to Cloud One Console..."
@@ -50,9 +52,11 @@ CONFORMITY_SA_UID=$(gcloud iam service-accounts describe $CONFORMITY_SA_EMAIL --
 PROJECT_LIST_NAME=$(gcloud projects list --format='value(NAME)')
 PROJECT_LIST_ID=$(gcloud projects list --format="value(PROJECT_ID)")
 
+echo "Mapping Cloud One Conformity Service Account to accounts..."
 for project in $PROJECT_LIST_ID
 do
-gcloud projects add-iam-policy-binding $project --member=serviceAccount:$CONFORMITY_SA_EMAIL --role=roles/compute.viewer
+echo "Adding Conformity Service Account to $project..."
+gcloud projects add-iam-policy-binding $project --member=serviceAccount:$CONFORMITY_SA_EMAIL --role=$CONFORMITY_ROLE
 PROJECT_NAME=$(gcloud projects list --filter=$project --format='value(NAME)')
 ADD_ACCOUNT=$(wget -qO- --no-check-certificate \
   --method POST \
@@ -73,7 +77,8 @@ ADD_ACCOUNT=$(wget -qO- --no-check-certificate \
     }    
   }	
 }' \
-"https://conformity.$CLOUD_ONE_REGION.cloudone.trendmicro.com/api/accounts/gcp" | jq '.stackID' | tr -d '"') 
+"https://conformity.$CLOUD_ONE_REGION.cloudone.trendmicro.com/api/accounts/gcp" | jq '.stackID' | tr -d '"')
+echo "$project added to Cloud One Conformity console" 
 done
 
 echo "The project has been added successfully to Cloud One Conformity. Go to your Cloud One Conformity console to check this out."
