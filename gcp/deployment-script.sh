@@ -63,7 +63,7 @@ ADD_ACCOUNT=$(wget -qO- --no-check-certificate \
   --timeout=0 \
   --header 'Api-Version: v1' \
   --header 'Content-Type: application/vnd.api+json' \
-  --header "Authorization: ApiKey $CLOUD_ONE_API_KEY" \
+  --header "Authorization: apiKey $CLOUD_ONE_API_KEY" \
   --body-data '{
   "data": {
     "type": 'account',
