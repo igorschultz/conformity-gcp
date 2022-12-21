@@ -43,7 +43,7 @@ echo $CONFORMITY_SA_EMAIL
 # Generate a Service Account JSON key
 echo "Generating JSON file..."
 gcloud iam service-accounts keys create Conformitykey.json --iam-account=$CONFORMITY_SA_EMAIL
-
+serviceAccountKeyJson=$(cat Conformitykey.json)
 echo "------------------------"
 echo "Adding GCP Project to Cloud One Console..."
 echo "------------------------"
@@ -58,6 +58,21 @@ do
 echo "Adding Conformity Service Account to $project..."
 gcloud projects add-iam-policy-binding $project --member=serviceAccount:$CONFORMITY_SA_EMAIL --role=$CONFORMITY_ROLE
 PROJECT_NAME=$(gcloud projects list --filter=$project --format='value(NAME)')
+
+wget -qO- --no-check-certificate \
+  --method POST \
+  --timeout=0 \
+  --header 'Content-Type: application/vnd.api+json' \
+  --header 'Authorization: apiKey $CLOUD_ONE_API_KEY" \
+  --body-data "{
+  'data': {
+    'serviceAccountName': $DEPLOYMENT_NAME,
+    'serviceAccountKeyJson': $serviceAccountKeyJson
+    }
+}" \
+   'https://conformity.$CLOUD_ONE_REGION.cloudone.trendmicro.com/api/gcp/organisations'
+
+
 ADD_ACCOUNT=$(wget -qO- --no-check-certificate \
   --method POST \
   --timeout=0 \
@@ -68,7 +83,7 @@ ADD_ACCOUNT=$(wget -qO- --no-check-certificate \
   "data": {
     "type": 'account',
     "attributes": {
-      "name": '\"$DEPLOYMENT_NAME\"',
+      "name": '\"$PROJECT_NAME\"',
       "access": {
         "projectId": '\"$project\"',
         "projectName": '\"$PROJECT_NAME\"',
@@ -77,7 +92,7 @@ ADD_ACCOUNT=$(wget -qO- --no-check-certificate \
     }    
   }	
 }' \
-"https://conformity.$CLOUD_ONE_REGION.cloudone.trendmicro.com/api/accounts/gcp" | jq '.stackID' | tr -d '"')
+"https://conformity.$CLOUD_ONE_REGION.cloudone.trendmicro.com/api/accounts/gcp")
 echo "$project added to Cloud One Conformity console" 
 done
 
