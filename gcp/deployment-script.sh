@@ -59,15 +59,15 @@ echo "------------------------"
 wget -qO- --no-check-certificate \
   --method POST \
   --timeout=0 \
-  --header 'Content-Type: application/vnd.api+json' \
-  --header 'Authorization: apiKey $CLOUD_ONE_API_KEY' \
+  --header "Content-Type: application/vnd.api+json" \
+  --header "Authorization: apiKey $CLOUD_ONE_API_KEY" \
   --body-data "{
   'data': {
     'serviceAccountName': $DEPLOYMENT_NAME,
     'serviceAccountKeyJson': $serviceAccountKeyJson
-    }
+  }
 }" \
-   'https://conformity.$CLOUD_ONE_REGION.cloudone.trendmicro.com/api/gcp/organisations'
+   "https://conformity.$CLOUD_ONE_REGION.cloudone.trendmicro.com/api/gcp/organisations"
 
 
 echo "Mapping Cloud One Conformity Service Account to accounts..."
@@ -77,11 +77,10 @@ echo "Adding Conformity Service Account to $project..."
 gcloud projects add-iam-policy-binding $project --member=serviceAccount:$CONFORMITY_SA_EMAIL --role=$CONFORMITY_ROLE
 PROJECT_NAME=$(gcloud projects list --filter=$project --format='value(NAME)')
 
-wget -qO- --no-check-certificate \
+ACCOUNT_ID=$(wget -qO- --no-check-certificate \
   --method POST \
   --timeout=0 \
-  --header 'Api-Version: v1' \
-  --header 'Content-Type: application/vnd.api+json' \
+  --header "Content-Type: application/vnd.api+json" \
   --header "Authorization: apiKey $CLOUD_ONE_API_KEY" \
   --body-data "{
   'data': {
@@ -91,13 +90,22 @@ wget -qO- --no-check-certificate \
       'access': {
         'projectId': $project,
         'projectName': $PROJECT_NAME,
-        'serviceAccountUniqueId': $CONFORMITY_SA_UID 
+        'serviceAccountUniqueId': '$CONFORMITY_SA_UID' 
       } 
     }    
   }	
 }" \
-'https://conformity.$CLOUD_ONE_REGION.cloudone.trendmicro.com/api/accounts/gcp'
+   "https://conformity.$CLOUD_ONE_REGION.cloudone.trendmicro.com/api/accounts/gcp" | jq '.id' | tr -d '"')
+
 echo "$project added to Cloud One Conformity console" 
+echo "Starting to scan $project"
+
+wget -qO- --no-check-certificate \
+  --method POST \
+  --timeout=0 \
+  --header "Content-Type: application/vnd.api+json" \
+  --header "Authorization: apiKey $CLOUD_ONE_API_KEY" \
+   "https://conformity.$CLOUD_ONE_REGION.cloudone.trendmicro.com/api/accounts/$ACCOUNT_ID/scan"
 done
 
-echo "The project has been added successfully to Cloud One Conformity. Go to your Cloud One Conformity console to check this out."
+echo "The projects has been added successfully to Cloud One Conformity. Go to your Cloud One Conformity console to check this out."
