@@ -52,6 +52,24 @@ CONFORMITY_SA_UID=$(gcloud iam service-accounts describe $CONFORMITY_SA_EMAIL --
 PROJECT_LIST_NAME=$(gcloud projects list --format='value(NAME)')
 PROJECT_LIST_ID=$(gcloud projects list --format="value(PROJECT_ID)")
 
+echo "------------------------"
+echo "Adding GCP Organization to Cloud One Console..."
+echo "------------------------"
+
+wget -qO- --no-check-certificate \
+  --method POST \
+  --timeout=0 \
+  --header 'Content-Type: application/vnd.api+json' \
+  --header 'Authorization: apiKey $CLOUD_ONE_API_KEY' \
+  --body-data "{
+  'data': {
+    'serviceAccountName': $DEPLOYMENT_NAME,
+    'serviceAccountKeyJson': $serviceAccountKeyJson
+    }
+}" \
+   'https://conformity.$CLOUD_ONE_REGION.cloudone.trendmicro.com/api/gcp/organisations'
+
+
 echo "Mapping Cloud One Conformity Service Account to accounts..."
 for project in $PROJECT_LIST_ID
 do
@@ -62,37 +80,23 @@ PROJECT_NAME=$(gcloud projects list --filter=$project --format='value(NAME)')
 wget -qO- --no-check-certificate \
   --method POST \
   --timeout=0 \
-  --header 'Content-Type: application/vnd.api+json' \
-  --header 'Authorization: apiKey $CLOUD_ONE_API_KEY" \
-  --body-data "{
-  'data': {
-    'serviceAccountName': $DEPLOYMENT_NAME,
-    'serviceAccountKeyJson': $serviceAccountKeyJson
-    }
-}" \
-   'https://conformity.$CLOUD_ONE_REGION.cloudone.trendmicro.com/api/gcp/organisations'
-
-
-ADD_ACCOUNT=$(wget -qO- --no-check-certificate \
-  --method POST \
-  --timeout=0 \
   --header 'Api-Version: v1' \
   --header 'Content-Type: application/vnd.api+json' \
   --header "Authorization: apiKey $CLOUD_ONE_API_KEY" \
-  --body-data '{
-  "data": {
-    "type": 'account',
-    "attributes": {
-      "name": '\"$PROJECT_NAME\"',
-      "access": {
-        "projectId": '\"$project\"',
-        "projectName": '\"$PROJECT_NAME\"',
-        "serviceAccountUniqueId": '\"$CONFORMITY_SA_UID\"' 
+  --body-data "{
+  'data': {
+    'type': 'account',
+    'attributes': {
+      'name': $PROJECT_NAME,
+      'access': {
+        'projectId': $project,
+        'projectName': $PROJECT_NAME,
+        'serviceAccountUniqueId': $CONFORMITY_SA_UID 
       } 
     }    
   }	
-}' \
-"https://conformity.$CLOUD_ONE_REGION.cloudone.trendmicro.com/api/accounts/gcp")
+}" \
+'https://conformity.$CLOUD_ONE_REGION.cloudone.trendmicro.com/api/accounts/gcp'
 echo "$project added to Cloud One Conformity console" 
 done
 
