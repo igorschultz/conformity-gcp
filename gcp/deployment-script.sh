@@ -18,7 +18,7 @@ echo "Enabling Google Cloud APIs for projects..."
 for project in $PROJECT_LIST_ID
 do
 # Enable Google APIs
-gcloud services enable dns.googleapis.com bigquery.googleapis.com bigquerymigration.googleapis.com bigquerystorage.googleapis.com cloudapis.googleapis.com cloudresourcemanager.googleapis.com iam.googleapis.com accessapproval.googleapis.com cloudkms.googleapis.com compute.googleapis.com storage.googleapis.com sqladmin.googleapis.com dataproc.googleapis.com container.googleapis.com logging.googleapis.com pubsub.googleapis.com cloudresourcemanager.googleapis.com
+gcloud services enable dns.googleapis.com bigquery.googleapis.com bigquerymigration.googleapis.com bigquerystorage.googleapis.com cloudapis.googleapis.com cloudresourcemanager.googleapis.com iam.googleapis.com accessapproval.googleapis.com cloudkms.googleapis.com compute.googleapis.com storage.googleapis.com sqladmin.googleapis.com dataproc.googleapis.com container.googleapis.com logging.googleapis.com pubsub.googleapis.com cloudresourcemanager.googleapis.com cloudasset.googleapis.com
 echo "Conformity APIs enabled for $project"
 done
 
@@ -106,6 +106,7 @@ wget -qO- --no-check-certificate \
   --header "Content-Type: application/vnd.api+json" \
   --header "Authorization: apiKey $CLOUD_ONE_API_KEY" \
    "https://conformity.$CLOUD_ONE_REGION.cloudone.trendmicro.com/api/accounts/$ACCOUNT_ID/scan"
+   
 done
 
 echo "The projects has been added successfully to Cloud One Conformity. Go to your Cloud One Conformity console to check this out."
