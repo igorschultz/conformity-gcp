@@ -36,17 +36,10 @@ CONFORMITY_SA_EMAIL=$(gcloud iam service-accounts list --filter=cloud-one-confor
 echo "Conformity Service Account created"
 echo $CONFORMITY_SA_EMAIL
 
-# Binding role to Service Account
-#echo "Binding Conformity role to Service Account..."
-#gcloud projects add-iam-policy-binding $GCP_PROJECT_ID --member=serviceAccount:$CONFORMITY_SA_EMAIL --role=$CONFORMITY_ROLE
-
 # Generate a Service Account JSON key
 echo "Generating JSON file..."
 gcloud iam service-accounts keys create Conformitykey.json --iam-account=$CONFORMITY_SA_EMAIL
 serviceAccountKeyJson=$(cat Conformitykey.json)
-echo "------------------------"
-echo "Adding GCP Project to Cloud One Console..."
-echo "------------------------"
 
 CONFORMITY_SA_UID=$(gcloud iam service-accounts describe $CONFORMITY_SA_EMAIL --format 'value(uniqueId)')
 PROJECT_LIST_NAME=$(gcloud projects list --format='value(NAME)')
@@ -95,10 +88,11 @@ ACCOUNT_ID=$(wget -qO- --no-check-certificate \
     }    
   }	
 }" \
-   "https://conformity.$CLOUD_ONE_REGION.cloudone.trendmicro.com/api/accounts/gcp" | jq '.id' | tr -d '"')
+   "https://conformity.$CLOUD_ONE_REGION.cloudone.trendmicro.com/api/accounts/gcp" | jq '.data.id' | tr -d '"')
 
 echo "$project added to Cloud One Conformity console" 
 echo "Starting to scan $project"
+echo "Account id: $ACCOUNT_ID" 
 
 wget -qO- --no-check-certificate \
   --method POST \
