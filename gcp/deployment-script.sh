@@ -61,7 +61,7 @@ wget -qO- --no-check-certificate \
   }
 }" \
    "https://conformity.$CLOUD_ONE_REGION.cloudone.trendmicro.com/api/gcp/organisations"
-
+   
 
 echo "Mapping Cloud One Conformity Service Account to accounts..."
 for project in $PROJECT_LIST_ID
@@ -103,4 +103,4 @@ wget -qO- --no-check-certificate \
    
 done
 
-echo "The projects has been added successfully to Cloud One Conformity. Go to your Cloud One Conformity console to check this out."
+echo "The projects have been added successfully to Cloud One Conformity. Go to your Cloud One Conformity console to check this out."
