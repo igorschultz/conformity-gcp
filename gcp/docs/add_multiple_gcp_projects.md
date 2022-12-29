@@ -4,7 +4,7 @@
 
 ## Overview
 
-<walkthrough-tutorial-duration duration="20"></walkthrough-tutorial-duration>
+<walkthrough-tutorial-duration duration="10"></walkthrough-tutorial-duration>
 
 This tutorial will guide you to the set up configuration of your GCP organization and projects to Cloud One Conformity.
 The Conformity deployment script will create:
@@ -72,3 +72,14 @@ You need the following in order to deploy Cloud One Conformity (Don't worry, the
 
 Now all projects has been added to the console, review the misconfigurations by pillar, resource or frameworks/standards to increase your security posture on the public cloud.
 Utilize our [knowledge base](https://www.trendmicro.com/cloudoneconformity/knowledge-base/gcp/) and set up the [communication channels](https://cloudone.trendmicro.com/docs/conformity/communication-channels/) to address the findings with our team and workflow.
+
+--------------------------------
+
+### Cleanup
+
+To remove the Conformity Bot Service Account from projects and delete it from your security project, you can run our cleanup script. This script will not remove the projects from Cloud One Conformity console.
+* <walkthrough-editor-open-file filePath="remove-script.sh">Cleanup Script</walkthrough-editor-open-file>
+
+```sh
+./remove-script.sh 
+```
