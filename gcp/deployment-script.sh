@@ -14,6 +14,13 @@ GCP_PROJECT_ID=$(gcloud config list --format 'value(core.project)' 2> /dev/null)
 ORG_ID=$(gcloud organizations list --format 'value(ID)')
 PROJECT_LIST_ID=$(gcloud projects list --format="value(PROJECT_ID)")
 
+# Create a custom role containing the permissions below:
+echo "Deploying Cloud One Conformity Role..."
+gcloud iam roles create CloudOneConformityAccess --organization=$ORG_ID --file=cc-roles.yaml
+CONFORMITY_ROLE=$(gcloud iam roles list --filter=CloudOneConformityAccess --organization=$ORG_ID --format="value(NAME)")
+echo "Conformity custom role created"
+echo $CONFORMITY_ROLE
+
 echo "Enabling Google Cloud APIs for projects..."
 for project in $PROJECT_LIST_ID
 do
@@ -21,13 +28,6 @@ do
 gcloud services enable dns.googleapis.com bigquery.googleapis.com bigquerymigration.googleapis.com bigquerystorage.googleapis.com cloudapis.googleapis.com cloudresourcemanager.googleapis.com iam.googleapis.com accessapproval.googleapis.com cloudkms.googleapis.com compute.googleapis.com storage.googleapis.com sqladmin.googleapis.com dataproc.googleapis.com container.googleapis.com logging.googleapis.com pubsub.googleapis.com cloudresourcemanager.googleapis.com cloudasset.googleapis.com
 echo "Conformity APIs enabled for $project"
 done
-
-# Create a custom role containing the permissions below:
-echo "Deploying Cloud One Conformity Role..."
-gcloud iam roles create CloudOneConformityAccess --organization=$ORG_ID --file=cc-roles.yaml
-CONFORMITY_ROLE=$(gcloud iam roles list --filter=CloudOneConformityAccess --organization=$ORG_ID --format="value(NAME)")
-echo "Conformity custom role created"
-echo $CONFORMITY_ROLE
 
 # Create Cloud One Conformity Service Account
 echo "Deploying Cloud One Conformity Service Account..."
